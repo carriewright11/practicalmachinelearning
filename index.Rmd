@@ -1,0 +1,94 @@
+---
+title: "Practical Machine Learning Course Project"
+author: "Carrie Wright"
+date: "October 23, 2016"
+output: html_document
+---
+This script explores tracking data of individuals performing weight lifting exercises and produces a classifier to predict if the individuals performed the exercises correctly or in a commonly incorrect manner.
+
+First, load needed packages and data.
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+
+```
+```{r}
+library(data.table)
+library(caret)
+
+Training_Data <- fread("https://d396qusza40orc.cloudfront.net/predmachlearn/pml-training.csv")
+Testing_Data <- fread("https://d396qusza40orc.cloudfront.net/predmachlearn/pml-testing.csv")
+Training_Data <- as.data.frame(Training_Data)
+Testing_Data <- as.data.frame(Testing_Data)
+```
+
+Next, partition the training data into training and test sets. We will use the Testing_Data for the ultimate test of our classifier later.
+
+```{r}
+set.seed(123)
+inTrain = createDataPartition(Training_Data$classe, p=.6)[[1]]
+training <- Training_Data[inTrain,]
+testing <- Training_Data[-inTrain,]
+
+```
+
+Now, explore the data.
+```{r}
+head(str(training))
+```
+
+From this output we see that many columns of data contain numeric data, while others contain categorical character information. We also see that many of the numeric data columns have missing data points.
+
+
+```{r}
+chrindex<-as.vector(which(sapply(training[8:159], class) == 'character') +7)
+chrData<-training[chrindex]
+training[chrindex]<-sapply(chrData, as.factor)
+training[chrindex]<-sapply(chrData, as.numeric)
+
+```
+
+To remove the columns with mostly NAs:
+```{r}
+Notavail<-list() #creates a list of the columns with missing data
+for (i in names(training)){
+  name <- paste(i)
+  tmp<-length(which(is.na(training[[i]])))
+  Notavail[[i]] <- tmp
+}
+training<-training[,which(Notavail==0)] #extracts only the columns without missing data
+testing<-testing[,which(Notavail==0)]
+Testing_Data<-Testing_Data[,which(Notavail==0)]
+```
+
+Check for correlations
+```{r}
+training<-data.frame(training)
+numindex<-as.vector(which(sapply(training, class) != 'character'))
+correlations<-abs(cor(training[numindex]))
+diag(correlations)<-0
+which(correlations>.8, arr.ind=T)
+#many predictor variables are correlated
+plot(training$magnet_arm_z, training$magnet_arm_y, main = "Correlated Variables")
+```
+Since so manyvariables are correlated, I will use PCA to reduce noise as a preprocessing step of my training. I also removed the first 7 variables, as they did not seem very useful.
+
+I used knn because it is relatively quick and is quite intuitive for the given classification (5 classes) that we are attempting. I also used nzv to get rid of any non zero variance variables and I used 10 cross validations. 
+
+```{r}
+set.seed(123)
+ModelA<-train(classe ~., training[8:60], method = "knn", preProcess=c("nzv", "pca"))
+print(ModelA)
+```
+
+Let's check it out with the "testing" data.
+```{r}
+set.seed(223)
+testingprediction<-predict(ModelA, newdata = testing[8:60])
+accuracy <- sum(testingprediction == testing$classe) / length(testing$classe) #on average how often was this correct
+print(accuracy)
+```
+Not bad. I dont think we run the risk of overfitting too much, so I believe the real test error will be something like this.
+
+I then predicted with the actual test Data.
