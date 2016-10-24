@@ -166,7 +166,7 @@ which(correlations&gt;.8, arr.ind=T)
 <p>I used knn because it is relatively quick and is quite intuitive for the given classification (5 classes) that we are attempting. I also used nzv to get rid of any non zero variance variables and I used 10 cross validations.</p>
 <pre class="r"><code>set.seed(123)
 
-ModelA&lt;-train(classe ~. ,training[8:60], method = &quot;knn&quot;, preProcess=c(&quot;nzv&quot;, &quot;pca&quot;))
+ModelA&lt;-train(classe ~. ,training[8:60], method = &quot;knn&quot;, preProcess=c(&quot;nzv&quot;, &quot;pca&quot;), trainControl(method =&quot;cv&quot;, number = 10))
 print(ModelA)</code></pre>
 <p>Let’s check it out with the “testing” data.</p>
 <pre class="r"><code>set.seed(223)
