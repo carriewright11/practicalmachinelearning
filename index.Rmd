@@ -9,7 +9,7 @@ This script explores tracking data of individuals performing weight lifting exer
 First, load needed packages and data.
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(cache=TRUE)
+
 ```
 ```{r}
 library(data.table)
@@ -42,7 +42,7 @@ head(str(training))
 From this output we see that many columns of data contain numeric data, while others contain categorical character information. We also see that many of the numeric data columns have missing data points.
 
 
-```{r, eval=FALSE}
+```{r}
 chrindex<-as.vector(which(sapply(training[8:159], class) == 'character') +7)
 chrData<-training[chrindex]
 training[chrindex]<-sapply(chrData, as.factor)
@@ -73,16 +73,16 @@ which(correlations>.8, arr.ind=T)
 ```
 Since so manyvariables are correlated, I will use PCA to reduce noise as a preprocessing step of my training. I also removed the first 7 variables, as they did not seem very useful.
 
-I used knn because it is relatively quick and is quite intuitive for the given classification (5 classes) that we are attempting. I also used nzv to get rid of any non zero variance variables and I used 10 cross validations. 
-```{r, eval = FALSE}
+I used knn because it is relatively quick and is quite intuitive for the given classification (5 classes) that we are attempting. I also used nzv to get rid of any non zero variance variables. 
+```{r}
 set.seed(123)
 
-ModelA<-train(classe ~. ,training[8:60], method = "knn", preProcess=c("nzv", "pca"), trainControl(method ="cv", number = 10))
+ModelA<-train(classe ~. ,training[8:60], method = "knn", preProcess=c("nzv", "pca"))
 print(ModelA)
 ```
 
 Let's check it out with the "testing" data.
-```{r, eval=FALSE}
+```{r}
 set.seed(223)
 testingprediction<-predict(ModelA, newdata = testing[8:60])
 accuracy <- sum(testingprediction == testing$classe) / length(testing$classe) #on average how often was this correct
