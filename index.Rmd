@@ -9,8 +9,6 @@ This script explores tracking data of individuals performing weight lifting exer
 First, load needed packages and data.
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-
 
 ```
 ```{r}
@@ -34,8 +32,11 @@ testing <- Training_Data[-inTrain,]
 ```
 
 Now, explore the data.
-```{r}
+
+```{r, eval=FALSE}
+
 head(str(training))
+
 ```
 
 From this output we see that many columns of data contain numeric data, while others contain categorical character information. We also see that many of the numeric data columns have missing data points.
@@ -63,22 +64,20 @@ Testing_Data<-Testing_Data[,which(Notavail==0)]
 ```
 
 Check for correlations
-```{r}
-training<-data.frame(training)
+```{r,eval=FALSE}
 numindex<-as.vector(which(sapply(training, class) != 'character'))
 correlations<-abs(cor(training[numindex]))
 diag(correlations)<-0
 which(correlations>.8, arr.ind=T)
 #many predictor variables are correlated
-plot(training$magnet_arm_z, training$magnet_arm_y, main = "Correlated Variables")
 ```
 Since so manyvariables are correlated, I will use PCA to reduce noise as a preprocessing step of my training. I also removed the first 7 variables, as they did not seem very useful.
 
-I used knn because it is relatively quick and is quite intuitive for the given classification (5 classes) that we are attempting. I also used nzv to get rid of any non zero variance variables and I used 10 cross validations. 
-
+I used knn because it is relatively quick and is quite intuitive for the given classification (5 classes) that we are attempting. I also used nzv to get rid of any non zero variance variables. 
 ```{r}
 set.seed(123)
-ModelA<-train(classe ~., training[8:60], method = "knn", preProcess=c("nzv", "pca"))
+
+ModelA<-train(classe ~. , training[8:60], method = "knn", preProcess=c("nzv", "pca"))
 print(ModelA)
 ```
 
@@ -89,6 +88,6 @@ testingprediction<-predict(ModelA, newdata = testing[8:60])
 accuracy <- sum(testingprediction == testing$classe) / length(testing$classe) #on average how often was this correct
 print(accuracy)
 ```
-Not bad. I dont think we run the risk of overfitting too much, so I believe the real test error will be something like this.
+Not bad. Accuracy is around 94 %. I dont think we run the risk of overfitting too much, so I believe the real test error will be something like this.
 
 I then predicted with the actual test Data.

@@ -146,6 +146,71 @@ testing &lt;- Training_Data[-inTrain,]</code></pre>
 chrData&lt;-training[chrindex]
 training[chrindex]&lt;-sapply(chrData, as.factor)
 training[chrindex]&lt;-sapply(chrData, as.numeric)</code></pre>
+<pre><code>## Warning in lapply(X = X, FUN = FUN, ...): NAs introduced by coercion
+
+## Warning in lapply(X = X, FUN = FUN, ...): NAs introduced by coercion
+
+## Warning in lapply(X = X, FUN = FUN, ...): NAs introduced by coercion
+
+## Warning in lapply(X = X, FUN = FUN, ...): NAs introduced by coercion
+
+## Warning in lapply(X = X, FUN = FUN, ...): NAs introduced by coercion
+
+## Warning in lapply(X = X, FUN = FUN, ...): NAs introduced by coercion
+
+## Warning in lapply(X = X, FUN = FUN, ...): NAs introduced by coercion
+
+## Warning in lapply(X = X, FUN = FUN, ...): NAs introduced by coercion
+
+## Warning in lapply(X = X, FUN = FUN, ...): NAs introduced by coercion
+
+## Warning in lapply(X = X, FUN = FUN, ...): NAs introduced by coercion
+
+## Warning in lapply(X = X, FUN = FUN, ...): NAs introduced by coercion
+
+## Warning in lapply(X = X, FUN = FUN, ...): NAs introduced by coercion
+
+## Warning in lapply(X = X, FUN = FUN, ...): NAs introduced by coercion
+
+## Warning in lapply(X = X, FUN = FUN, ...): NAs introduced by coercion
+
+## Warning in lapply(X = X, FUN = FUN, ...): NAs introduced by coercion
+
+## Warning in lapply(X = X, FUN = FUN, ...): NAs introduced by coercion
+
+## Warning in lapply(X = X, FUN = FUN, ...): NAs introduced by coercion
+
+## Warning in lapply(X = X, FUN = FUN, ...): NAs introduced by coercion
+
+## Warning in lapply(X = X, FUN = FUN, ...): NAs introduced by coercion
+
+## Warning in lapply(X = X, FUN = FUN, ...): NAs introduced by coercion
+
+## Warning in lapply(X = X, FUN = FUN, ...): NAs introduced by coercion
+
+## Warning in lapply(X = X, FUN = FUN, ...): NAs introduced by coercion
+
+## Warning in lapply(X = X, FUN = FUN, ...): NAs introduced by coercion
+
+## Warning in lapply(X = X, FUN = FUN, ...): NAs introduced by coercion
+
+## Warning in lapply(X = X, FUN = FUN, ...): NAs introduced by coercion
+
+## Warning in lapply(X = X, FUN = FUN, ...): NAs introduced by coercion
+
+## Warning in lapply(X = X, FUN = FUN, ...): NAs introduced by coercion
+
+## Warning in lapply(X = X, FUN = FUN, ...): NAs introduced by coercion
+
+## Warning in lapply(X = X, FUN = FUN, ...): NAs introduced by coercion
+
+## Warning in lapply(X = X, FUN = FUN, ...): NAs introduced by coercion
+
+## Warning in lapply(X = X, FUN = FUN, ...): NAs introduced by coercion
+
+## Warning in lapply(X = X, FUN = FUN, ...): NAs introduced by coercion
+
+## Warning in lapply(X = X, FUN = FUN, ...): NAs introduced by coercion</code></pre>
 <p>To remove the columns with mostly NAs:</p>
 <pre class="r"><code>Notavail&lt;-list() #creates a list of the columns with missing data
 for (i in names(training)){
@@ -163,16 +228,36 @@ diag(correlations)&lt;-0
 which(correlations&gt;.8, arr.ind=T)
 #many predictor variables are correlated</code></pre>
 <p>Since so manyvariables are correlated, I will use PCA to reduce noise as a preprocessing step of my training. I also removed the first 7 variables, as they did not seem very useful.</p>
-<p>I used knn because it is relatively quick and is quite intuitive for the given classification (5 classes) that we are attempting. I also used nzv to get rid of any non zero variance variables and I used 10 cross validations.</p>
+<p>I used knn because it is relatively quick and is quite intuitive for the given classification (5 classes) that we are attempting. I also used nzv to get rid of any non zero variance variables.</p>
 <pre class="r"><code>set.seed(123)
 
-ModelA&lt;-train(classe ~. ,training[8:60], method = &quot;knn&quot;, preProcess=c(&quot;nzv&quot;, &quot;pca&quot;), trainControl(method =&quot;cv&quot;, number = 10))
+ModelA&lt;-train(classe ~. , training[8:60], method = &quot;knn&quot;, preProcess=c(&quot;nzv&quot;, &quot;pca&quot;))
 print(ModelA)</code></pre>
+<pre><code>## k-Nearest Neighbors 
+## 
+## 11776 samples
+##    52 predictor
+##     5 classes: 'A', 'B', 'C', 'D', 'E' 
+## 
+## Pre-processing: principal component signal extraction (52), centered
+##  (52), scaled (52) 
+## Resampling: Bootstrapped (25 reps) 
+## Summary of sample sizes: 11776, 11776, 11776, 11776, 11776, 11776, ... 
+## Resampling results across tuning parameters:
+## 
+##   k  Accuracy   Kappa    
+##   5  0.9211414  0.9002082
+##   7  0.9101864  0.8863463
+##   9  0.8988741  0.8720251
+## 
+## Accuracy was used to select the optimal model using  the largest value.
+## The final value used for the model was k = 5.</code></pre>
 <p>Let’s check it out with the “testing” data.</p>
 <pre class="r"><code>set.seed(223)
 testingprediction&lt;-predict(ModelA, newdata = testing[8:60])
 accuracy &lt;- sum(testingprediction == testing$classe) / length(testing$classe) #on average how often was this correct
 print(accuracy)</code></pre>
+<pre><code>## [1] 0.9478715</code></pre>
 <p>Not bad. Accuracy is around 94 %. I dont think we run the risk of overfitting too much, so I believe the real test error will be something like this.</p>
 <p>I then predicted with the actual test Data.</p>
 
