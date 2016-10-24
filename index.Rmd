@@ -77,7 +77,7 @@ I used knn because it is relatively quick and is quite intuitive for the given c
 ```{r}
 set.seed(123)
 
-ModelA<-train(classe ~. ,training[8:60], method = "knn", preProcess=c("nzv", "pca"))
+ModelA<-train(classe ~. , training[8:60], method = "knn", preProcess=c("nzv", "pca"))
 print(ModelA)
 ```
 
