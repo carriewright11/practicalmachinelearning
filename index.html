@@ -141,7 +141,7 @@ training &lt;- Training_Data[inTrain,]
 testing &lt;- Training_Data[-inTrain,]</code></pre>
 <p>Now, explore the data.</p>
 <pre class="r"><code>head(str(training))</code></pre>
-<p>From this output we see that many columns of data contain numeric data, while others contain categorical character information. We also see that many of the numeric data columns have missing data points.</p>
+<p>From this output we see that many columns of data contain numeric data, while others contain categorical character information. We also see that many of the numeric data columns have missing data points. I will convert these to NAs… which will cause a warning.</p>
 <pre class="r"><code>chrindex&lt;-as.vector(which(sapply(training[8:159], class) == 'character') +7)
 chrData&lt;-training[chrindex]
 training[chrindex]&lt;-sapply(chrData, as.factor)
@@ -228,7 +228,7 @@ diag(correlations)&lt;-0
 which(correlations&gt;.8, arr.ind=T)
 #many predictor variables are correlated</code></pre>
 <p>Since so manyvariables are correlated, I will use PCA to reduce noise as a preprocessing step of my training. I also removed the first 7 variables, as they did not seem very useful.</p>
-<p>I used knn because it is relatively quick and is quite intuitive for the given classification (5 classes) that we are attempting. I also used nzv to get rid of any non zero variance variables.</p>
+<p>I used knn because it is relatively quick and is quite intuitive for the given classification (5 classes) that we are attempting. I also used nzv to get rid of any non zero variance variables. Knn by default does bootstrapping for cross validation.</p>
 <pre class="r"><code>set.seed(123)
 
 ModelA&lt;-train(classe ~. , training[8:60], method = &quot;knn&quot;, preProcess=c(&quot;nzv&quot;, &quot;pca&quot;))
@@ -258,7 +258,7 @@ testingprediction&lt;-predict(ModelA, newdata = testing[8:60])
 accuracy &lt;- sum(testingprediction == testing$classe) / length(testing$classe) #on average how often was this correct
 print(accuracy)</code></pre>
 <pre><code>## [1] 0.9478715</code></pre>
-<p>Not bad. Accuracy is around 94 %. I dont think we run the risk of overfitting too much, so I believe the real test error will be something like this.</p>
+<p>Not bad. Accuracy is around 94 %. So out of sample error is around 6 %. I dont think we run the risk of overfitting too much, so I believe the real test error will be something like this.</p>
 <p>I then predicted with the actual test Data.</p>
 
 

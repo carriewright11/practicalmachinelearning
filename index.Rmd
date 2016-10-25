@@ -39,7 +39,7 @@ head(str(training))
 
 ```
 
-From this output we see that many columns of data contain numeric data, while others contain categorical character information. We also see that many of the numeric data columns have missing data points.
+From this output we see that many columns of data contain numeric data, while others contain categorical character information. We also see that many of the numeric data columns have missing data points. I will convert these to NAs... which will cause a warning.
 
 
 ```{r}
@@ -73,7 +73,7 @@ which(correlations>.8, arr.ind=T)
 ```
 Since so manyvariables are correlated, I will use PCA to reduce noise as a preprocessing step of my training. I also removed the first 7 variables, as they did not seem very useful.
 
-I used knn because it is relatively quick and is quite intuitive for the given classification (5 classes) that we are attempting. I also used nzv to get rid of any non zero variance variables. 
+I used knn because it is relatively quick and is quite intuitive for the given classification (5 classes) that we are attempting. I also used nzv to get rid of any non zero variance variables. Knn by default does bootstrapping for cross validation.
 ```{r}
 set.seed(123)
 
@@ -88,6 +88,6 @@ testingprediction<-predict(ModelA, newdata = testing[8:60])
 accuracy <- sum(testingprediction == testing$classe) / length(testing$classe) #on average how often was this correct
 print(accuracy)
 ```
-Not bad. Accuracy is around 94 %. I dont think we run the risk of overfitting too much, so I believe the real test error will be something like this.
+Not bad. Accuracy is around 94 %. So out of sample error is around 6 %. I dont think we run the risk of overfitting too much, so I believe the real test error will be something like this.
 
 I then predicted with the actual test Data.
